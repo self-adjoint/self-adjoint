@@ -1,0 +1,26 @@
+\documentclass[10pt]{extarticle}
+
+\usepackage{graphicx}
+\usepackage[paperwidth=10cm,paperheight=10cm,top=0cm,bottom=0cm,left=-0.525cm,right=0cm]{geometry}
+\usepackage{tikz,tikz-3dplot}
+
+% Created November 12, 2024
+% Based on an original design, created September 6, 2021
+
+\begin{document}
+
+\thispagestyle{empty}
+
+% Instructions:
+% 1. Compile the file stereographic_projection.tex
+% 2. Save the pdf as stereographic_projection.pdf
+% 3. Compile this file
+
+\begin{tikzpicture}
+    \clip (-5,-5) rectangle (5,5);
+    % \clip (0,0) circle (5);
+    \node at (-1,-1.2) {\includegraphics[width=40cm]{stereographic_projection.pdf}};
+    % \draw (0,0) circle (5);
+\end{tikzpicture}
+
+\end{document}

@@ -1,0 +1,121 @@
+\documentclass[10pt]{extarticle}
+
+\usepackage[paperwidth=6.4in,paperheight=3.2in,top=0.2in,bottom=0.2in,left=0.2in,right=0.2in]{geometry}
+\usepackage{tikz,tikz-3dplot}
+
+% Created November 12, 2024
+% Based on an original design, created September 6, 2021
+
+\begin{document}
+
+\thispagestyle{empty}
+
+% Defining a new "canvas is plane" environment:
+% canvas is plane={O(#1,#2,#3)x(#4,#5,#6)y(#7,#8,#9)}
+% (#1,#2,#3) are the coordinates of the new origin
+% (#4,#5,#6) is the new x-unit vector (emanating from the new origin)
+% (#7,#8,#9) is the new y-unit vector (emanating from the new origin)
+\makeatletter
+\tikzoption{canvas is plane}[]{\@setOxy#1}
+\def\@setOxy O(#1,#2,#3)x(#4,#5,#6)y(#7,#8,#9)%
+  {\def\tikz@plane@origin{\pgfpointxyz{#1}{#2}{#3}}%
+   \def\tikz@plane@x{\pgfpointxyz{#1+#4}{#2+#5}{#3+#6}}%
+   \def\tikz@plane@y{\pgfpointxyz{#1+#7}{#2+#8}{#3+#9}}%
+   \tikz@canvas@is@plane
+  }
+\makeatother
+% Adapted from https://tex.stackexchange.com/a/353398
+
+\pgfmathdeclarefunction{xmap}{2}{\pgfmathparse{4*#1/((#1)^2+(#2)^2+4)}}
+\pgfmathdeclarefunction{ymap}{2}{\pgfmathparse{4*#2/((#1)^2+(#2)^2+4)}}
+\pgfmathdeclarefunction{zmap}{2}{\pgfmathparse{2*((#1)^2+(#2)^2)/((#1)^2+(#2)^2+4)}}
+
+\tdplotsetmaincoords{70}{115}
+\tdplotsetrotatedcoords{25}{70}{0}
+
+\begin{tikzpicture}[tdplot_main_coords]
+% Defining the plane coordinates of the circle
+\pgfmathsetmacro{\a}{1.2} % x-coordinate of center
+\pgfmathsetmacro{\b}{1.8} % y-coordinate of center
+\pgfmathsetmacro{\r}{1} % Radius
+\pgfmathtruncatemacro{\spokes}{12} % Number of spokes from pole to circle on plane (equally spaced on circumference)
+
+    \begin{scope}[canvas is xy plane at z=0]
+        \shade[left color=gray!60, right color=white, shading angle=-20] (-8,-5) rectangle (6,5);
+        \draw[gray,opacity=0.5,step=0.5] (-8,-5) grid (6,5); % Grid lines on plane
+    \end{scope}
+    
+    \begin{scope}[shift={(0,0,1)}, tdplot_rotated_coords]
+        \shade[ball color=white] (0,0,0) circle (1);
+    \end{scope}
+    
+    % Inner portions of spokes (inside the sphere)
+    \foreach \v in {0,1,...,\number\numexpr\spokes-1\relax}
+    {
+        \pgfmathsetmacro{\t}{360/\spokes*\v}
+        \draw[thin,red,opacity=0.5] (0,0,2)--({xmap(\a+\r*cos(\t),\b+\r*sin(\t))},{ymap(\a+\r*cos(\t),\b+\r*sin(\t))},{zmap(\a+\r*cos(\t),\b+\r*sin(\t))});
+    }
+    
+    \foreach \th in {0,15,...,345}
+    {
+        \begin{scope}[canvas is plane={O(0,0,0)x({cos(\th)},{sin(\th)},0)y(0,0,1)}]
+        \draw[gray,opacity=0.5] (0,1) circle (1); % Longitudinal rays on sphere
+        \end{scope}
+    }
+    
+    \foreach \s in {0.1,0.2,...,1.9} % This DOES NOT correspond to the radial circles with the values of \r above! It has been modified for visual aid
+    {
+        \begin{scope}[canvas is xy plane at z=\s]
+        \draw[gray,opacity=0.5] (0,0) circle ({sqrt(1-(\s-1)^2)}); % Latitudinal circles on sphere
+        \end{scope}
+    }
+    
+    \begin{scope}[canvas is xy plane at z=0] % Circle on plane
+        \draw[black] (\a,\b) circle (\r);
+    \end{scope}
+    
+    % Plane coordinates of 'lower' end of circle
+    \pgfmathsetmacro{\xlower}{\a*(1-\r/sqrt((\a)^2+(\b)^2))}
+    \pgfmathsetmacro{\ylower}{\b*(1-\r/sqrt((\a)^2+(\b)^2))}
+    %Plane coordinates of 'upper' end of circle
+    \pgfmathsetmacro{\xupper}{\a*(1+\r/sqrt((\a)^2+(\b)^2))}
+    \pgfmathsetmacro{\yupper}{\b*(1+\r/sqrt((\a)^2+(\b)^2))}
+    
+    % Coordinates of center of circle on sphere (of course, the center itself lies inside the sphere)
+    \pgfmathsetmacro{\newcenterx}{1/2*xmap(\xlower,\ylower)+1/2*xmap(\xupper,\yupper)}
+    \pgfmathsetmacro{\newcentery}{1/2*ymap(\xlower,\ylower)+1/2*ymap(\xupper,\yupper)}
+    \pgfmathsetmacro{\newcenterz}{1/2*zmap(\xlower,\ylower)+1/2*zmap(\xupper,\yupper)}
+    
+    % Coordinates of radius vector of circle on sphere (this points from the center, defined above, to the image of the 'upper' end)
+    \pgfmathsetmacro{\newradiusx}{1/2*xmap(\xupper,\yupper)-1/2*xmap(\xlower,\ylower)}
+    \pgfmathsetmacro{\newradiusy}{1/2*ymap(\xupper,\yupper)-1/2*ymap(\xlower,\ylower)}
+    \pgfmathsetmacro{\newradiusz}{1/2*zmap(\xupper,\yupper)-1/2*zmap(\xlower,\ylower)}
+    % Radius of circle on sphere
+    \pgfmathsetmacro{\newradius}{sqrt((\newradiusx)^2+(\newradiusy)^2+(\newradiusz)^2)}
+    
+    % Unit latitudinal vector (normalized radius vector)
+    \pgfmathsetmacro{\ulatx}{\newradiusx/\newradius}
+    \pgfmathsetmacro{\ulaty}{\newradiusy/\newradius}
+    \pgfmathsetmacro{\ulatz}{\newradiusz/\newradius}
+    
+    % Unit longitudinal vector (radius vector cross (0,0,1), then normalized)
+    \pgfmathsetmacro{\ulongx}{\newradiusy/sqrt((\newradiusx)^2+(\newradiusy)^2)}
+    \pgfmathsetmacro{\ulongy}{-\newradiusx/sqrt((\newradiusx)^2+(\newradiusy)^2)}
+    
+    \begin{scope}[canvas is plane={
+        O(\newcenterx,\newcentery,\newcenterz)x(\ulatx,\ulaty,\ulatz)y(\ulongx,\ulongy,0)
+    }]
+        \draw[black] (0,0) circle (\newradius); % Image of circle on sphere
+    \end{scope}
+    
+    % Outer portions of spokes (outside the sphere)
+    \foreach \v in {0,1,...,\number\numexpr\spokes-1\relax}
+    {
+        \pgfmathsetmacro{\t}{360/\spokes*\v}
+        \draw[thin,blue,opacity=0.5] ({xmap(\a+\r*cos(\t),\b+\r*sin(\t))},{ymap(\a+\r*cos(\t),\b+\r*sin(\t))},{zmap(\a+\r*cos(\t),\b+\r*sin(\t))})--({\a+\r*cos(\t)},{\b+\r*sin(\t)},0);
+    }
+    
+    \fill (0,0,2) circle (0.4pt); % Pole
+\end{tikzpicture}
+
+\end{document}
