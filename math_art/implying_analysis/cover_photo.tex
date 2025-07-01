@@ -13,17 +13,18 @@
 
 \setlength{\parindent}{0pt}
 
-% Created by Senan Sekhon, August 7, 2021
+% Created August 7, 2021
 
 \begin{document}
 
 \thispagestyle{empty}
 
-\begin{tikzpicture}[urysohn_lemma/.pic={%%% Urysohn's Lemma (this cannot be drawn in the main body as it is a tikz3d picture)
+\begin{tikzpicture}[urysohn_lemma/.pic={
+    %%% Urysohn's Lemma (this cannot be drawn in the main body as it is a tikz3d picture)
     \tdplotsetmaincoords{70}{115}
     \begin{scope}[tdplot_main_coords]
-        \definecolor{acol}{HTML}{1565C0} %color for region A
-        \definecolor{bcol}{HTML}{B92B27} %color for region B
+        \definecolor{acol}{HTML}{1565C0} % Color for region A
+        \definecolor{bcol}{HTML}{B92B27} % Color for region B
         \begin{scope}[canvas is xy plane at z=0]
             \fill[acol!20,even odd rule] (0,0) circle (3) (-1.5,-1.5) rectangle (1.5,1.5);
             \draw[thick,acol] (-1.5,-1.5) rectangle (1.5,1.5);
@@ -102,9 +103,9 @@
     \end{scope}
 
     %%% Diagram for Cantor Set
-    \begin{scope}[shift={(-13.5,-3.5)},rotate=15,scale=7.5,every node/.style={transform shape,scale=0.1}] %Scale for nodes set to 0.1 to adjust relative size
-        \definecolor{col1}{HTML}{52C234} %color for C_0
-        \definecolor{col2}{HTML}{061700} %color for C_5
+    \begin{scope}[shift={(-13.5,-3.5)},rotate=15,scale=7.5,every node/.style={transform shape,scale=0.1}] % Scale for nodes set to 0.1 to adjust relative size
+        \definecolor{col1}{HTML}{52C234} % Color for C_0
+        \definecolor{col2}{HTML}{061700} % Color for C_5
         % C_0
         \draw[thick,col1] (0,0) -- (1,0) node[right]{$C_0$};
         % C_1
